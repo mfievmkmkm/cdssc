@@ -1,11 +1,42 @@
+# Python
 __pycache__/
 *.py[cod]
 *.pyo
+*.pyc
+*.pyd
+*.so
+*.dll
 
+# Виртуальное окружение
+venv/
 .venv/
+env/
+ENV/
 
-.idea/
-
-*.tmp
-
+# Файлы с секретами
+.env
 *.env
+.env.local
+.env.production
+
+# Данные бота
+subscriptions.txt
+users.txt
+*.db
+*.sqlite
+*.sqlite3
+
+# IDE
+.idea/
+.vscode/
+*.iml
+*.swp
+*.swo
+
+# Логи
+*.log
+logs/
+
+# Системные
+.DS_Store
+Thumbs.db
