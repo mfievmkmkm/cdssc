@@ -15,5 +15,6 @@ DB_NAME = os.getenv('DB_NAME')
 DATABASE_URL = f'postgresql+asyncpg://{DB_USER}:{DB_PASSWORD}@postgres_db:5432/{DB_NAME}'
 
 MSK = pytz.timezone('Europe/Moscow')
+print(f"TOKEN = {TOKEN}")
 bot = Bot(token=TOKEN)
 dp = Dispatcher(storage=MemoryStorage())
