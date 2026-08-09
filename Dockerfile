@@ -1,13 +1,19 @@
 FROM python:3.13-slim
 
-COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
-
 WORKDIR /app
 
-COPY pyproject.toml uv.lock ./
+# Устанавливаем системные зависимости для asyncpg (PostgreSQL)
+RUN apt-get update && apt-get install -y \
+    gcc \
+    libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
 
-RUN uv pip install --system --no-cache -r pyproject.toml
+# Копируем и устанавливаем Python-зависимости
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
+# Копируем весь проект
 COPY . .
 
-CMD ["python", "app.py"]
+# Запускаем бота (используйте правильный файл входа)
+CMD ["python", "bot.py"]
