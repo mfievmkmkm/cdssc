@@ -1,42 +1,37 @@
-import asyncio
+import os
 import logging
+import threading
+from flask import Flask, jsonify
+from bot import main as bot_main
 
-from apscheduler.schedulers.asyncio import AsyncIOScheduler
+# Настройка логирования
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
-from config import bot, dp
-from db.models import create_tables, DatabaseMiddleware, async_session
-from handlers.admin import without_adding, stats, setprice
-from handlers.user import start, tariff, sub_info, expiration_check, stars_payment
-from handlers.user.expiration_check import check_subscriptions, check_expired_subscriptions
+# Создаем Flask приложение
+app = Flask(__name__)
 
-logging.getLogger('aiogram').setLevel(logging.INFO)
+@app.route('/')
+def root():
+    return "✅ Бот работает!", 200
 
-scheduler = AsyncIOScheduler(timezone='Europe/Moscow')  # Часовой пояс - МСК
+@app.route('/health')
+def health():
+    return jsonify({"status": "ok", "message": "Bot is running"}), 200
 
-
-async def main():
-    await create_tables()
-    dp.message.middleware(DatabaseMiddleware())
-    dp.callback_query.middleware(DatabaseMiddleware())
-    dp.include_routers(start.router, without_adding.router, tariff.router, stats.router, stars_payment.router,
-                       sub_info.router, expiration_check.router, setprice.router)
-
-    async with async_session() as session:
-        await tariff.init_tariffs(session)
-
-    try:
-        scheduler.add_job(check_subscriptions, 'cron', hour=10, minute=00)  # Проверка на то, остался ли день до окончания подписки. Ежедневно в 10:00
-        scheduler.add_job(check_expired_subscriptions, 'interval', minutes=15)  # Проверка на уже истечённую подписку каждые 15 минут
-        scheduler.start()
-
-        await bot.delete_webhook(drop_pending_updates=True)
-        print(f'Бот запущен.')
-        await dp.start_polling(bot)
-    except Exception as e:
-        logging.exception(f"Ошибка при запуске бота: {e}")
+@app.route('/ping')
+def ping():
+    return "pong", 200
 
 if __name__ == '__main__':
-    try:
-        asyncio.run(main())
-    except (KeyboardInterrupt, RuntimeError) as main_error:
-        print('Бот выключен.')
+    # Запускаем бота в отдельном потоке, чтобы Flask не блокировал его
+    bot_thread = threading.Thread(target=bot_main, daemon=True)
+    bot_thread.start()
+    logger.info("Бот запущен в фоновом потоке")
+    
+    # Получаем порт от Render (обязательно!)
+    port = int(os.getenv('PORT', 10000))
+    logger.info(f"Запуск Flask-сервера на порту {port}")
+    
+    # Запускаем Flask сервер
+    app.run(host='0.0.0.0', port=port, debug=False, use_reloader=False)
