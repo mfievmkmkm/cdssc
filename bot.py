@@ -11,7 +11,13 @@ from pyCryptoPayAPI import pyCryptoPayAPI
 load_dotenv()
 
 # --- НАСТРОЙКИ ---
-BOT_TOKEN = "8902871507:AAHiHk4ByGMuXqLf0nLI6x-CzBeD3ssHO8k"
+# --- ТОКЕН ИЗ ПЕРЕМЕННОЙ ОКРУЖЕНИЯ ---
+BOT_TOKEN = os.getenv("BOT_TOKEN")
+# Отладка
+print(f"✅ Токен загружен: {'ДА' if BOT_TOKEN else 'НЕТ'}")
+if not BOT_TOKEN:
+    logging.error("❌ Токен не найден! Проверьте переменную BOT_TOKEN на Railway.")
+    exit(1)
 ADMIN_ID = int(os.getenv("ADMIN_ID", 0))
 CHANNEL_ID = int(os.getenv("PRIVATE_CHANNEL_ID", 0))
 PRICE_1 = int(os.getenv("PRICE_1_MONTH", 300))
