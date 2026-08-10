@@ -10,29 +10,15 @@ from pyCryptoPayAPI import pyCryptoPayAPI
 
 load_dotenv()
 
-# --- НАСТРОЙКИ (ПЕРЕИМЕНОВАНЫ ПЕРЕМЕННЫЕ) ---
-# Используем ТОЛЬКО те переменные, что есть на Railway
-BOT_TOKEN = os.getenv("TOKEN")  # <-- ИЗМЕНЕНО: было BOT_TOKEN, стало TOKEN
-ADMIN_ID = int(os.getenv("ADMIN", 0))  # <-- ИЗМЕНЕНО: было ADMIN_ID, стало ADMIN
-CHANNEL_ID = int(os.getenv("PRIVATE_CHANNEL_ID", 0))  # <-- ИЗМЕНЕНО: было CHANNEL_ID
-
-# Цены остаются, но их нужно добавить в переменные на Railway!
+# --- НАСТРОЙКИ ---
+BOT_TOKEN = os.getenv("BOT_TOKEN")
+ADMIN_ID = int(os.getenv("ADMIN_ID", 0))
+CHANNEL_ID = int(os.getenv("PRIVATE_CHANNEL_ID", 0))
 PRICE_1 = int(os.getenv("PRICE_1_MONTH", 300))
 PRICE_3 = int(os.getenv("PRICE_3_MONTH", 600))
 PRICE_6 = int(os.getenv("PRICE_6_MONTH", 1000))
 
-CRYPTO_TOKEN = os.getenv("CRYPTO_TOKEN")  # Тоже нужно добавить!
-
-# Проверка, что токен загрузился (для отладки)
-if not BOT_TOKEN:
-    logging.error("❌ ТОКЕН НЕ НАЙДЕН! Проверьте переменную TOKEN на Railway.")
-else:
-    logging.info("✅ Токен загружен успешно.")
-
-# ... (весь остальной код вашего бота без изменений) ...
-# Внимание! Я не копирую весь код бота повторно, он остается таким же, 
-# как вы прислали, просто с исправленными названиями переменных в начале.
-# Пожалуйста, скопируйте код из вашего файла и замените ТОЛЬКО эти строки в начале.
+CRYPTO_TOKEN = os.getenv("CRYPTO_TOKEN")
 
 # Создаём клиент Crypto Pay (синхронный)
 crypto = pyCryptoPayAPI(CRYPTO_TOKEN)
@@ -502,23 +488,27 @@ async def send_to_all(update: Update, context: ContextTypes.DEFAULT_TYPE):
 def main():
     load_subscriptions()
     
-    app = Application.builder().token(BOT_TOKEN).build()
+    # Создаем приложение
+    application = Application.builder().token(BOT_TOKEN).build()
     
-    app.add_handler(CommandHandler("start", start))
-    app.add_handler(CommandHandler("admin", admin))
-    app.add_handler(CommandHandler("answer", answer_user))
-    app.add_handler(CommandHandler("send", send_to_all))
-    app.add_handler(CallbackQueryHandler(buy_handler, pattern="buy_"))
-    app.add_handler(CallbackQueryHandler(choose_payment, pattern="pay_"))
-    app.add_handler(CallbackQueryHandler(back_to_start, pattern="back_to_start"))
-    app.add_handler(CallbackQueryHandler(crypto_buy, pattern="crypto_"))
-    app.add_handler(CallbackQueryHandler(crypto_check, pattern="crypto_check_"))
-    app.add_handler(PreCheckoutQueryHandler(pre_checkout))
-    app.add_handler(MessageHandler(filters.SUCCESSFUL_PAYMENT, successful_payment))
-    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, forward_to_admin))
+    # Добавляем обработчики
+    application.add_handler(CommandHandler("start", start))
+    application.add_handler(CommandHandler("admin", admin))
+    application.add_handler(CommandHandler("answer", answer_user))
+    application.add_handler(CommandHandler("send", send_to_all))
+    application.add_handler(CallbackQueryHandler(buy_handler, pattern="buy_"))
+    application.add_handler(CallbackQueryHandler(choose_payment, pattern="pay_"))
+    application.add_handler(CallbackQueryHandler(back_to_start, pattern="back_to_start"))
+    application.add_handler(CallbackQueryHandler(crypto_buy, pattern="crypto_"))
+    application.add_handler(CallbackQueryHandler(crypto_check, pattern="crypto_check_"))
+    application.add_handler(PreCheckoutQueryHandler(pre_checkout))
+    application.add_handler(MessageHandler(filters.SUCCESSFUL_PAYMENT, successful_payment))
+    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, forward_to_admin))
     
     logger.info("Бот запущен!")
-    app.run_polling()
+    
+    # Запускаем бота
+    application.run_polling()
 
 if __name__ == "__main__":
     main()
