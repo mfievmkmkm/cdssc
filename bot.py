@@ -13,7 +13,7 @@ load_dotenv()
 # --- НАСТРОЙКИ ---
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 ADMIN_ID = int(os.getenv("ADMIN_ID", 0))
-CHANNEL_ID = int(os.getenv("PRIVATE_CHANNEL_ID", 0))
+CHANNEL_ID = int(os.getenv("CHANNEL_ID", 0))
 PRICE_1 = int(os.getenv("PRICE_1_MONTH", 300))
 PRICE_3 = int(os.getenv("PRICE_3_MONTH", 600))
 PRICE_6 = int(os.getenv("PRICE_6_MONTH", 1000))
