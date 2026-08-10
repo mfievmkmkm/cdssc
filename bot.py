@@ -265,7 +265,7 @@ async def successful_payment(update: Update, context: ContextTypes.DEFAULT_TYPE)
             parse_mode="HTML"
         )
 
-# --- ПОКУПКА ЧЕРЕЗ CRYPTO PAY ---
+# --- ПОКУПКА ЧЕРЕЗ CRYPTO PAY (ИСПРАВЛЕННАЯ) ---
 async def crypto_buy(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
@@ -289,8 +289,8 @@ async def crypto_buy(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
     
     try:
-        # Синхронный вызов, без await
-        invoice = crypto.create_invoice(
+        # Асинхронный вызов (исправлено)
+        invoice = await crypto.create_invoice(
             asset="USDT",
             amount=price,
             description=f"Подписка на NFT-сигналы — {label}",
@@ -321,9 +321,9 @@ async def crypto_buy(update: Update, context: ContextTypes.DEFAULT_TYPE):
         
     except Exception as e:
         logger.error(f"Ошибка создания инвойса Crypto Pay: {e}")
-        await query.edit_message_text("❌ Ошибка создания счёта. Попробуйте позже.")
-
-# --- ПРОВЕРКА ОПЛАТЫ CRYPTO PAY ---
+        await query.edit_message_text(f"❌ Ошибка создания счёта: {str(e)}")
+        
+# --- ПРОВЕРКА ОПЛАТЫ CRYPTO PAY (ИСПРАВЛЕННАЯ) ---
 async def crypto_check(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
@@ -333,10 +333,11 @@ async def crypto_check(update: Update, context: ContextTypes.DEFAULT_TYPE):
     days = context.user_data.get('crypto_days', 30)
     
     try:
-        # Синхронный вызов, без await
-        invoice = crypto.get_invoices(invoice_id=invoice_id)
+        # Асинхронный вызов
+        invoices = await crypto.get_invoices(invoice_id=invoice_id)
         
-        if invoice['status'] == 'paid':
+        # Проверка статуса (исправлено)
+        if invoices['status'] == 'paid':
             expires = datetime.now() + timedelta(days=days)
             subscriptions[user_id] = expires
             save_subscriptions()
@@ -380,7 +381,7 @@ async def crypto_check(update: Update, context: ContextTypes.DEFAULT_TYPE):
             
     except Exception as e:
         logger.error(f"Ошибка проверки инвойса: {e}")
-        await query.edit_message_text("❌ Ошибка проверки. Попробуйте позже.")
+        await query.edit_message_text(f"❌ Ошибка проверки: {str(e)}")
 
 # --- АДМИН ---
 async def admin(update: Update, context: ContextTypes.DEFAULT_TYPE):
