@@ -11,7 +11,7 @@ from pyCryptoPayAPI import pyCryptoPayAPI
 load_dotenv()
 
 # --- НАСТРОЙКИ ---
-BOT_TOKEN = os.getenv("BOT_TOKEN")
+BOT_TOKEN = "8902871507:AAHiHk4ByGMuXqLf0nLI6x-CzBeD3ssHO8k"
 ADMIN_ID = int(os.getenv("ADMIN_ID", 0))
 CHANNEL_ID = int(os.getenv("PRIVATE_CHANNEL_ID", 0))
 PRICE_1 = int(os.getenv("PRICE_1_MONTH", 300))
