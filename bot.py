@@ -10,15 +10,29 @@ from pyCryptoPayAPI import pyCryptoPayAPI
 
 load_dotenv()
 
-# --- НАСТРОЙКИ ---
-BOT_TOKEN = os.getenv("BOT_TOKEN")
-ADMIN_ID = int(os.getenv("ADMIN_ID", 0))
-CHANNEL_ID = int(os.getenv("CHANNEL_ID", 0))
+# --- НАСТРОЙКИ (ПЕРЕИМЕНОВАНЫ ПЕРЕМЕННЫЕ) ---
+# Используем ТОЛЬКО те переменные, что есть на Railway
+BOT_TOKEN = os.getenv("TOKEN")  # <-- ИЗМЕНЕНО: было BOT_TOKEN, стало TOKEN
+ADMIN_ID = int(os.getenv("ADMIN", 0))  # <-- ИЗМЕНЕНО: было ADMIN_ID, стало ADMIN
+CHANNEL_ID = int(os.getenv("PRIVATE_CHANNEL_ID", 0))  # <-- ИЗМЕНЕНО: было CHANNEL_ID
+
+# Цены остаются, но их нужно добавить в переменные на Railway!
 PRICE_1 = int(os.getenv("PRICE_1_MONTH", 300))
 PRICE_3 = int(os.getenv("PRICE_3_MONTH", 600))
 PRICE_6 = int(os.getenv("PRICE_6_MONTH", 1000))
 
-CRYPTO_TOKEN = os.getenv("CRYPTO_TOKEN")
+CRYPTO_TOKEN = os.getenv("CRYPTO_TOKEN")  # Тоже нужно добавить!
+
+# Проверка, что токен загрузился (для отладки)
+if not BOT_TOKEN:
+    logging.error("❌ ТОКЕН НЕ НАЙДЕН! Проверьте переменную TOKEN на Railway.")
+else:
+    logging.info("✅ Токен загружен успешно.")
+
+# ... (весь остальной код вашего бота без изменений) ...
+# Внимание! Я не копирую весь код бота повторно, он остается таким же, 
+# как вы прислали, просто с исправленными названиями переменных в начале.
+# Пожалуйста, скопируйте код из вашего файла и замените ТОЛЬКО эти строки в начале.
 
 # Создаём клиент Crypto Pay (синхронный)
 crypto = pyCryptoPayAPI(CRYPTO_TOKEN)
