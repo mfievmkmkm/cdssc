@@ -20,25 +20,24 @@ def root():
 def health():
     return jsonify({"status": "ok"}), 200
 
-# --- Функция для запуска бота в отдельном потоке с собственным циклом ---
-def run_bot():
-    """Создает новый event loop и запускает в нем основную функцию бота."""
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
-    try:
-        loop.run_until_complete(bot_main())
-    except Exception as e:
-        logger.exception(f"Критическая ошибка в потоке бота: {e}")
-    finally:
-        loop.close()
-
-if __name__ == '__main__':
-    # 1. Запускаем бота в фоновом потоке
-    bot_thread = threading.Thread(target=run_bot, daemon=True)
-    bot_thread.start()
-    logger.info("✅ Бот запущен в фоновом потоке")
-
-    # 2. Запускаем Flask-сервер в главном потоке
+# --- Функция для запуска Flask во втором потоке ---
+def run_flask():
+    """Запускает Flask-сервер в отдельном потоке."""
     port = int(os.getenv('PORT', 10000))
     logger.info(f"🚀 Запуск Flask-сервера на порту {port}")
     app.run(host='0.0.0.0', port=port, debug=False, use_reloader=False)
+
+if __name__ == '__main__':
+    # 1. Запускаем Flask в фоновом потоке
+    flask_thread = threading.Thread(target=run_flask, daemon=True)
+    flask_thread.start()
+    logger.info("✅ Flask-сервер запущен в фоновом потоке")
+
+    # 2. Запускаем бота в ГЛАВНОМ потоке
+    logger.info("🤖 Запуск бота в главном потоке...")
+    try:
+        asyncio.run(bot_main())
+    except KeyboardInterrupt:
+        logger.info("Бот остановлен пользователем")
+    except Exception as e:
+        logger.exception(f"Критическая ошибка при запуске бота: {e}")
