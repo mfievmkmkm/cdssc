@@ -271,7 +271,7 @@ async def successful_payment(update: Update, context: ContextTypes.DEFAULT_TYPE)
             parse_mode="HTML"
         )
 
-# --- ПОКУПКА ЧЕРЕЗ CRYPTO PAY (ИСПРАВЛЕННАЯ) ---
+# --- ПОКУПКА ЧЕРЕЗ CRYPTO PAY (СИНХРОННАЯ) ---
 async def crypto_buy(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
@@ -295,8 +295,8 @@ async def crypto_buy(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
     
     try:
-        # Асинхронный вызов (исправлено)
-        invoice = await crypto.create_invoice(
+        # Убираем await - библиотека синхронная!
+        invoice = crypto.create_invoice(
             asset="USDT",
             amount=price,
             description=f"Подписка на NFT-сигналы — {label}",
@@ -304,6 +304,10 @@ async def crypto_buy(update: Update, context: ContextTypes.DEFAULT_TYPE):
             paid_btn_name="openChannel",
             paid_btn_url="https://t.me/твой_канал"
         )
+        
+        # Проверяем, что инвойс создан
+        if not invoice or 'invoice_id' not in invoice:
+            raise Exception("Не удалось создать инвойс")
         
         context.user_data['crypto_invoice_id'] = invoice['invoice_id']
         context.user_data['crypto_days'] = days
@@ -328,8 +332,8 @@ async def crypto_buy(update: Update, context: ContextTypes.DEFAULT_TYPE):
     except Exception as e:
         logger.error(f"Ошибка создания инвойса Crypto Pay: {e}")
         await query.edit_message_text(f"❌ Ошибка создания счёта: {str(e)}")
-        
-# --- ПРОВЕРКА ОПЛАТЫ CRYPTO PAY (ИСПРАВЛЕННАЯ) ---
+
+# --- ПРОВЕРКА ОПЛАТЫ CRYPTO PAY (СИНХРОННАЯ) ---
 async def crypto_check(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
@@ -339,11 +343,11 @@ async def crypto_check(update: Update, context: ContextTypes.DEFAULT_TYPE):
     days = context.user_data.get('crypto_days', 30)
     
     try:
-        # Асинхронный вызов
-        invoices = await crypto.get_invoices(invoice_id=invoice_id)
+        # Убираем await - библиотека синхронная!
+        invoice = crypto.get_invoices(invoice_id=invoice_id)
         
-        # Проверка статуса (исправлено)
-        if invoices['status'] == 'paid':
+        # Проверяем статус
+        if invoice and invoice.get('status') == 'paid':
             expires = datetime.now() + timedelta(days=days)
             subscriptions[user_id] = expires
             save_subscriptions()
@@ -388,7 +392,6 @@ async def crypto_check(update: Update, context: ContextTypes.DEFAULT_TYPE):
     except Exception as e:
         logger.error(f"Ошибка проверки инвойса: {e}")
         await query.edit_message_text(f"❌ Ошибка проверки: {str(e)}")
-
 # --- АДМИН ---
 async def admin(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if update.effective_user.id != ADMIN_ID:
