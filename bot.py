@@ -107,12 +107,24 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     
     await update.message.reply_text(text, parse_mode="HTML", reply_markup=reply_markup)
 
-# --- КНОПКА НАЗАД ---
+# --- КНОПКА НАЗАД (С УДАЛЕНИЕМ ИНВОЙСА) ---
 async def back_to_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
     
     user_id = query.from_user.id
+    
+    # Удаляем сообщение с инвойсом, если оно было сохранено
+    invoice_message_id = context.user_data.get('invoice_message_id')
+    if invoice_message_id:
+        try:
+            await context.bot.delete_message(
+                chat_id=user_id,
+                message_id=invoice_message_id
+            )
+            context.user_data['invoice_message_id'] = None
+        except Exception as e:
+            logger.error(f"Не удалось удалить инвойс: {e}")
     
     if is_subscribed(user_id):
         await query.edit_message_text(
@@ -182,7 +194,7 @@ async def choose_payment(update: Update, context: ContextTypes.DEFAULT_TYPE):
             reply_markup=InlineKeyboardMarkup(keyboard)
         )
 
-# --- ПОКУПКА ЧЕРЕЗ STARS ---
+# --- ПОКУПКА ЧЕРЕЗ STARS (С СОХРАНЕНИЕМ ID ИНВОЙСА) ---
 async def buy_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
@@ -206,7 +218,8 @@ async def buy_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
     
     try:
-        await context.bot.send_invoice(
+        # Отправляем инвойс и сохраняем его message_id
+        sent_message = await context.bot.send_invoice(
             chat_id=user_id,
             title=f"Подписка на сигналы — {label}",
             description="Доступ к сигнальному каналу + NFT-Tracker",
@@ -219,6 +232,10 @@ async def buy_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
             need_phone_number=False,
             need_email=False
         )
+        
+        # Сохраняем ID сообщения с инвойсом для последующего удаления
+        context.user_data['invoice_message_id'] = sent_message.message_id
+        
     except Exception as e:
         logger.error(f"Ошибка создания счёта: {e}")
         await query.edit_message_text("❌ Ошибка создания счёта. Попробуйте позже.")
@@ -392,6 +409,7 @@ async def crypto_check(update: Update, context: ContextTypes.DEFAULT_TYPE):
     except Exception as e:
         logger.error(f"Ошибка проверки инвойса: {e}")
         await query.edit_message_text(f"❌ Ошибка проверки: {str(e)}")
+
 # --- АДМИН ---
 async def admin(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if update.effective_user.id != ADMIN_ID:
