@@ -75,10 +75,8 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if is_subscribed(user_id):
         await update.message.reply_text(
             "✅ <b>У вас есть активная подписка!</b>\n\n"
-            "📡 Сигнальный канал — уже открыт\n"
-            "🔍 NFT-Tracker — поиск владельцев подарков\n\n"
-            "Доступные команды:\n"
-            "/search — поиск подарков (в NFT-Tracker)",
+            "📡 Gifts Intelligence — уже открыт\n"
+            "🔍 NFT-Tracker — поиск владельцев подарков\n\n",
             parse_mode="HTML"
         )
         return
@@ -86,12 +84,9 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     text = (
         "💎 <b>Подписка на NFT-сигналы</b>\n\n"
         "Что вы получаете:\n"
-        "📡 <b>Сигнальный канал</b> — арбитражные сигналы по NFT-подаркам (Portals)\n"
+        "📡 <b>Gifts Intelligence</b> — арбитражные сигналы по NFT-подаркам (Portals)\n"
         "🔍 <b>NFT-Tracker</b> — поиск владельцев подарков по модели, фону, номеру\n\n"
-        "⚠️ <b>Важно:</b>\n"
-        "• Информация не является финансовой рекомендацией\n"
-        "• Все решения о покупке/продаже вы принимаете самостоятельно\n"
-        "• Администрация не несёт ответственности за возможные убытки\n\n"
+        "⚠️ <b>Дисклеймер:</b> Не финансовый совет. Все решения — на ваш риск."
         "💰 <b>Стоимость:</b>\n"
         "1 месяц — 300 ⭐ / 5 USDT\n"
         "3 месяца — 600 ⭐ / 10 USDT\n"
@@ -129,10 +124,8 @@ async def back_to_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if is_subscribed(user_id):
         await query.edit_message_text(
             "✅ <b>У вас есть активная подписка!</b>\n\n"
-            "📡 Сигнальный канал — уже открыт\n"
-            "🔍 NFT-Tracker — поиск владельцев подарков\n\n"
-            "Доступные команды:\n"
-            "/search — поиск подарков",
+            "📡 Gifts Intelligence — уже открыт\n"
+            "🔍 NFT-Tracker — поиск владельцев подарков\n\n",
             parse_mode="HTML"
         )
         return
@@ -142,9 +135,7 @@ async def back_to_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "Что вы получаете:\n"
         "📡 <b>Сигнальный канал</b> — арбитражные сигналы по NFT-подаркам\n"
         "🔍 <b>NFT-Tracker</b> — поиск владельцев подарков\n\n"
-        "⚠️ <b>Важно:</b>\n"
-        "• Информация не является финансовой рекомендацией\n"
-        "• Все решения вы принимаете самостоятельно\n\n"
+        "⚠️ <b>Дисклеймер:</b> Не финансовый совет. Все решения — на ваш риск."
         "💰 <b>Стоимость:</b>\n"
         "1 месяц — 300 ⭐ / 5 USDT\n"
         "3 месяца — 600 ⭐ / 10 USDT\n"
@@ -272,7 +263,7 @@ async def successful_payment(update: Update, context: ContextTypes.DEFAULT_TYPE)
         await update.message.reply_text(
             f"✅ <b>Оплата прошла успешно!</b>\n\n"
             f"Подписка активна до {expires.strftime('%d.%m.%Y %H:%M')}\n\n"
-            f"📡 <b>Сигнальный канал:</b>\n"
+            f"📡 <b>Gifts Intelligence:</b>\n"
             f"{invite_link.invite_link}\n\n"
             f"🔍 <b>NFT-Tracker</b> — поиск владельцев подарков\n"
             f"👉 @fyvfhvfhyfbot\n\n"
@@ -318,8 +309,8 @@ async def crypto_buy(update: Update, context: ContextTypes.DEFAULT_TYPE):
             amount=price,
             description=f"Подписка на NFT-сигналы — {label}",
             hidden_message=f"Спасибо за подписку! Ваш ID: {user_id}",
-            paid_btn_name="openChannel",
-            paid_btn_url="https://t.me/твой_канал"
+            #paid_btn_name="openChannel",
+            #paid_btn_url="https://t.me/твой_канал"
         )
         
         # Проверяем, что инвойс создан
@@ -385,7 +376,7 @@ async def crypto_check(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 await query.edit_message_text(
                     f"✅ <b>Оплата прошла успешно!</b>\n\n"
                     f"Подписка активна до {expires.strftime('%d.%m.%Y %H:%M')}\n\n"
-                    f"📡 <b>Сигнальный канал:</b>\n"
+                    f"📡 <b>Gifts Intelligence:</b>\n"
                     f"{invite_link.invite_link}\n\n"
                     f"🔍 <b>NFT-Tracker</b>\n"
                     f"👉 @fyvfhvfhyfbot\n\n"
